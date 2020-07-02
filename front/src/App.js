@@ -7,6 +7,9 @@ import './styles.css';
 
 const API_URL = '//localhost:8080';
 // Кнопка начала редактирования
+
+ 
+
 const StarteditButton = ({ startRedactionHandler, item }) => {
   return (
 
@@ -54,9 +57,79 @@ export const App = () => {
   });
 
 
+  const [searched, setSearched] = useState('');
+
+
 
   
 
+  
+
+  const Row=(item,index)=>{
+    return (
+      <tr key={item.id}>
+        <td>{item.id}</td>
+        <td>
+          <Container>
+            {
+              isRedacted(redactedData.id, item) ?
+                <Form.Control type="text"
+                  name="name"
+                  value={redactedData.name}
+                  onChange={handleRedactChange}
+                /> : item.name
+            }
+          </Container>
+        </td>
+        <td>{
+          <Container>
+            {
+              isRedacted(redactedData.id, item) ?
+                <Form.Control type="text"
+                  name="age"
+                  value={redactedData.age}
+                  onChange={handleRedactChange}
+                /> : item.age
+            }
+          </Container>}</td>
+        <td style={{
+          textAlign: 'center'
+        }}>
+          {
+            !isRedacted(redactedData.id, item) && <StarteditButton
+              item={item}
+              startRedactionHandler={startRedaction}
+            />
+          }
+          {
+            isRedacted(redactedData.id, item) &&(
+              <FinisheditButton>
+                {()=>{
+                  finishRedaction();
+                }}
+              </FinisheditButton>
+            )
+          }
+  
+  
+        </td>
+        <td style={{
+          textAlign: 'center'
+        }}>
+          <Button variant="danger" style={{
+            textAlign: 'center'
+          }}
+          onClick={(e)=>{
+            deleteHandler(item)
+          }}
+          >
+            <Container>
+              X
+    </Container>
+          </Button>
+        </td>
+      </tr>);
+  }
   useEffect(()=>{
     setLoading(true);
 
@@ -238,76 +311,29 @@ export const App = () => {
           </Alert>
           </td>
           </tr>}
-         {!error && allPersons.map((item, index) => {
-            return (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>
-                  <Container>
-                    {
-                      isRedacted(redactedData.id, item) ?
-                        <Form.Control type="text"
-                          name="name"
-                          value={redactedData.name}
-                          onChange={handleRedactChange}
-                        /> : item.name
-                    }
-                  </Container>
-                </td>
-                <td>{
-                  <Container>
-                    {
-                      isRedacted(redactedData.id, item) ?
-                        <Form.Control type="text"
-                          name="age"
-                          value={redactedData.age}
-                          onChange={handleRedactChange}
-                        /> : item.age
-                    }
-                  </Container>}</td>
-                <td style={{
-                  textAlign: 'center'
-                }}>
-                  {
-                    !isRedacted(redactedData.id, item) && <StarteditButton
-                      item={item}
-                      startRedactionHandler={startRedaction}
-                    />
-                  }
-                  {
-                    isRedacted(redactedData.id, item) &&(
-                      <FinisheditButton>
-                        {()=>{
-                          finishRedaction();
-                        }}
-                      </FinisheditButton>
-                    )
-                  }
-
-
-                </td>
-                <td style={{
-                  textAlign: 'center'
-                }}>
-                  <Button variant="danger" style={{
-                    textAlign: 'center'
-                  }}
-                  onClick={(e)=>{
-                    deleteHandler(item)
-                  }}
-                  >
-                    <Container>
-                      X
-            </Container>
-                  </Button>
-                </td>
-              </tr>);
-          })
+          {
+            // тут происходит фильтрация
+            !error && searched.trim() && allPersons.filter((item,index)=>{
+              return item.name.indexOf(searched.trim())!==-1;
+            }).map(Row)
+          }
+        {!error && !searched.trim() && allPersons.map(Row)
         }
 
 
       </tbody>
     </Table>
+    <Form style={{
+      margin:'10px 20px'
+    }}>
+    <Form.Label>Поиск по имени:</Form.Label>
+    <Form.Control   value={searched} 
+      onChange={(e)=>setSearched(e.target.value)}
+    />
+
+    </Form>
+    
+     
     </Container>
     }
     </Container>
